@@ -22,6 +22,9 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -39,6 +42,10 @@ public class MainActivity extends Covid {
     final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private Map<String, Integer> wifiList = new TreeMap<>();
     int mRSSICount = 0;
+
+    Wifi_Measurement wifi_measurement = new Wifi_Measurement();
+    DatabaseReference DBHelper;
+
     public SensorEventListener mSensorListener;
     public SensorManager sensorManager;
     public List<Sensor> listSensor;
@@ -84,6 +91,21 @@ public class MainActivity extends Covid {
                         + "Orientation: " + x_ori + "; " +y_ori+"; " +z_ori+ "\n"
                         + "linear acceleration: " + x_lin_acc+ " ; " + y_lin_acc +" ; "+ z_lin_acc +"\n"
                         +" 8===============D -----------End\n");
+
+                DBHelper = FirebaseDatabase.getInstance().getReference().child("wifi_measurement");
+                Float RSSI = new Float(result.level);
+                wifi_measurement.setBSSID(result.BSSID);
+                wifi_measurement.setRSSI(RSSI);
+                wifi_measurement.setSSID(result.SSID);
+                wifi_measurement.setLocation_ID(mEditTextLocation.getText().toString());
+                wifi_measurement.setTime_stamp(timestamp.getTime());
+                DBHelper.push().setValue(wifi_measurement);
+                /*
+                ConnectMySql connectMySql = new ConnectMySql();
+                String RSSI = String.valueOf(result.level);
+                String tstmp = String.valueOf(timestamp.getTime());
+                connectMySql.execute(result.SSID, RSSI, result.BSSID,
+                        mEditTextLocation.getText().toString(), tstmp);*/
             }
             ++mRSSICount;
             //ScanResultText.setText("");
@@ -168,15 +190,29 @@ public class MainActivity extends Covid {
 
     @Override
     protected void onPause(){
-        super.onPause();
-        unregisterReceiver(mReceiver);
-        sensorManager.unregisterListener(getmSensorListener);
+        try {
+            super.onPause();
+            unregisterReceiver(mReceiver);
+            sensorManager.unregisterListener(getmSensorListener);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
     }
     @Override
     protected void onDestroy(){
-        super.onDestroy();
-        unregisterReceiver(mReceiver);
-        sensorManager.unregisterListener(getmSensorListener);
+        try {
+            super.onDestroy();
+            unregisterReceiver(mReceiver);
+            sensorManager.unregisterListener(getmSensorListener);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
     }
     private SensorEventListener getmSensorListener = new SensorEventListener() {
         @Override

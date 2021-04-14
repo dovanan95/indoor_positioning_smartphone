@@ -109,32 +109,5 @@ public class Covid extends AppCompatActivity {
     }
 
 }
-/*
-public class ConnectMySql extends AsyncTask<String, Void, String>{
-    private static final String url = "jdbc://us-cdbr-east-03.cleardb.com:3306/heroku_0aefc07ce57e397";
-    private static final String user = "b001be2b5d7012";
-    private static final String password = "e795d093";
-    @Override
-    protected void onPreExecute(){
-        super.onPreExecute();
-    }
-    @Override
-    protected String doInBackground(String...param){
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = DriverManager.getConnection(url, user, password);
-            return null;
-
-        }catch (Exception e){
-            return null;
-
-        }
-
-    }
-    @Override
-    protected void onPostExecute(){
-        super.onPostExecute();
-    }
-}*/
 
 

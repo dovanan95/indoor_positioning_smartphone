@@ -108,6 +108,11 @@ public class Covid extends AppCompatActivity {
         return null;
     }
 
+    public void DBHelper ()
+    {
+
+    }
+
 }
 
 

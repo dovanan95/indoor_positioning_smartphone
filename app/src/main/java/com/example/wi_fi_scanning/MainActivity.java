@@ -29,6 +29,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -99,7 +100,20 @@ public class MainActivity extends Covid {
                 wifi_measurement.setSSID(result.SSID);
                 wifi_measurement.setLocation_ID(mEditTextLocation.getText().toString());
                 wifi_measurement.setTime_stamp(timestamp.getTime());
+                HashMap Acce = new HashMap();
+                Acce.put("x_acce", x);
+                Acce.put("y_acce", y);
+                Acce.put("z_acce", z);
+                HashMap Linear_Acce = new HashMap();
+                Linear_Acce.put("x_lnac", x_lin_acc);
+                Linear_Acce.put("y_lnac", y_lin_acc);
+                Linear_Acce.put("z_lnac", z_lin_acc);
+                HashMap Sens = new HashMap();
+                Sens.put("Acceleration", Acce);
+                Sens.put("Linear_Acceleration", Linear_Acce);
+                wifi_measurement.setSensors(Sens);
                 DBHelper.push().setValue(wifi_measurement);
+
                 /*
                 ConnectMySql connectMySql = new ConnectMySql();
                 String RSSI = String.valueOf(result.level);
@@ -262,6 +276,7 @@ public class MainActivity extends Covid {
 
                 sensorManager.registerListener(getmSensorListener, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getOrientation, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
+                //sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
             }
             else

@@ -1,11 +1,14 @@
 package com.example.wi_fi_scanning;
 
+import java.util.HashMap;
+
 public class Wifi_Measurement {
     private String SSID;
     private String BSSID;
     private Float RSSI;
     private String Location_ID;
     private long time_stamp;
+    private HashMap Sensors;
 
     public Wifi_Measurement() {
 
@@ -49,5 +52,13 @@ public class Wifi_Measurement {
 
     public void setTime_stamp(long time_stamp) {
         this.time_stamp = time_stamp;
+    }
+
+    public HashMap getSensors() {
+        return Sensors;
+    }
+
+    public void setSensors(HashMap sensors) {
+        Sensors = sensors;
     }
 }

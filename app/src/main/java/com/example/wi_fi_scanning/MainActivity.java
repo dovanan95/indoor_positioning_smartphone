@@ -23,13 +23,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -55,6 +53,8 @@ public class MainActivity extends Covid {
     public Sensor sensorAll;
     public float x,y,z, x_lin_acc, y_lin_acc, z_lin_acc;
     public float x_ori, y_ori, z_ori;
+    public float x_grav, y_grav, z_grav;
+    public float x_magnet, y_magnet, z_magnet;
 
     // BroadcastReceiver 정의
     // 여기서는 이전 예제에서처럼 별도의 Java class 파일로 만들지 않았는데, 어떻게 하든 상관 없음
@@ -92,34 +92,10 @@ public class MainActivity extends Covid {
                         + "Orientation: " + x_ori + "; " +y_ori+"; " +z_ori+ "\n"
                         + "linear acceleration: " + x_lin_acc+ " ; " + y_lin_acc +" ; "+ z_lin_acc +"\n"
                         +" 8===============D -----------End\n");
-
-                DBHelper = FirebaseDatabase.getInstance().getReference().child("wifi_measurement");
                 Float RSSI = new Float(result.level);
-                wifi_measurement.setBSSID(result.BSSID);
-                wifi_measurement.setRSSI(RSSI);
-                wifi_measurement.setSSID(result.SSID);
-                wifi_measurement.setLocation_ID(mEditTextLocation.getText().toString());
-                wifi_measurement.setTime_stamp(timestamp.getTime());
-                HashMap Acce = new HashMap();
-                Acce.put("x_acce", x);
-                Acce.put("y_acce", y);
-                Acce.put("z_acce", z);
-                HashMap Linear_Acce = new HashMap();
-                Linear_Acce.put("x_lnac", x_lin_acc);
-                Linear_Acce.put("y_lnac", y_lin_acc);
-                Linear_Acce.put("z_lnac", z_lin_acc);
-                HashMap Sens = new HashMap();
-                Sens.put("Acceleration", Acce);
-                Sens.put("Linear_Acceleration", Linear_Acce);
-                wifi_measurement.setSensors(Sens);
-                DBHelper.push().setValue(wifi_measurement);
-
-                /*
-                ConnectMySql connectMySql = new ConnectMySql();
-                String RSSI = String.valueOf(result.level);
-                String tstmp = String.valueOf(timestamp.getTime());
-                connectMySql.execute(result.SSID, RSSI, result.BSSID,
-                        mEditTextLocation.getText().toString(), tstmp);*/
+                Covid covid = new Covid();
+                covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(), timestamp.getTime(),
+                        x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,z_magnet);
             }
             ++mRSSICount;
             //ScanResultText.setText("");
@@ -243,6 +219,18 @@ public class MainActivity extends Covid {
                 y_lin_acc=event.values[1];
                 z_lin_acc=event.values[2];
             }
+            else if(event.sensor.getType()==Sensor.TYPE_GRAVITY)
+            {
+                x_grav=event.values[0];
+                y_grav=event.values[1];
+                z_grav=event.values[2];
+            }
+            else if(event.sensor.getType()==Sensor.TYPE_MAGNETIC_FIELD)
+            {
+                x_magnet=event.values[0];
+                y_magnet=event.values[1];
+                z_magnet=event.values[2];
+            }
         }
 
         @Override
@@ -276,8 +264,9 @@ public class MainActivity extends Covid {
 
                 sensorManager.registerListener(getmSensorListener, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getOrientation, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
-                //sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
             }
             else
             {
@@ -286,6 +275,13 @@ public class MainActivity extends Covid {
         }
         else if(view.getId()==R.id.stop)
         {
+            /*
+            DatabaseReference DBHelper_2 = null;
+            DBHelper_2 = FirebaseDatabase.getInstance().getReference().child("Stop");
+            HashMap stop_record = new HashMap();
+            stop_record.put("stop", true);
+            DBHelper_2.push().setValue(stop_record);*/
+
             unregisterReceiver(mReceiver);
             sensorManager.unregisterListener(getmSensorListener);
             sensorManager.unregisterListener(getOrientation);

@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import org.json.JSONObject;
 
 import java.io.BufferedOutputStream;
@@ -22,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 
 public class Covid extends AppCompatActivity {
     public static String myURL = "http://idls-server.herokuapp.com/idls_api/api/mes/mobile_handler";
@@ -108,9 +112,48 @@ public class Covid extends AppCompatActivity {
         return null;
     }
 
-    public void DBHelper ()
+    public void DBHelper (String BSSID, String SSID, Float RSSI, String Loc_ID, long time_stmp,
+                          Float x_acc, Float y_acc, Float z_acc, Float x_lnac, Float y_lnac, Float z_lnac,
+                          Float x_ori, Float y_ori, Float z_ori, Float x_grav, Float y_grav, Float z_grav,
+                          Float x_magnet, Float y_magnet, Float z_magnet)
     {
+        DatabaseReference DBHelper = null;
+        DBHelper = FirebaseDatabase.getInstance().getReference().child("wifi_measurement");
+        Wifi_Measurement wifi_measurement = new Wifi_Measurement();
+        wifi_measurement.setBSSID(BSSID);
+        wifi_measurement.setSSID(SSID);
+        wifi_measurement.setRSSI(RSSI);
+        wifi_measurement.setLocation_ID(Loc_ID);
+        wifi_measurement.setTime_stamp(time_stmp);
 
+        HashMap Acce = new HashMap();
+        Acce.put("x_acce", x_acc);
+        Acce.put("y_acce", y_acc);
+        Acce.put("z_acce", z_acc);
+        HashMap Linear_Acceleration = new HashMap();
+        Linear_Acceleration.put("x_lnac", x_lnac);
+        Linear_Acceleration.put("y_lnac", y_lnac);
+        Linear_Acceleration.put("z_lnac", z_lnac);
+        HashMap Orient = new HashMap();
+        Orient.put("x_ori", x_ori);
+        Orient.put("y_ori", y_ori);
+        Orient.put("z_ori", z_ori);
+        HashMap Grav = new HashMap();
+        Grav.put("x_grav", x_grav);
+        Grav.put("y_grav", y_grav);
+        Grav.put("z_grav", z_grav);
+        HashMap Magnet = new HashMap();
+        Magnet.put("x_magnet", x_magnet);
+        Magnet.put("y_magnet", y_magnet);
+        Magnet.put("z_magnet", z_magnet);
+        HashMap Sens = new HashMap();
+        Sens.put("Acceleration", Acce);
+        Sens.put("Linear_Acceleration", Linear_Acceleration);
+        Sens.put("Orientation", Orient);
+        Sens.put("Gravity", Grav);
+        Sens.put("Magnetic", Magnet);
+        wifi_measurement.setSensors(Sens);
+        DBHelper.push().setValue(wifi_measurement);
     }
 
 }

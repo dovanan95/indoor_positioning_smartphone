@@ -291,7 +291,6 @@ public class MainActivity extends Covid {
 
             unregisterReceiver(mReceiver);
             sensorManager.unregisterListener(getmSensorListener);
-            sensorManager.unregisterListener(getOrientation);
             //mRSSICount=12;
             ScanResultText.setText("");
             Toast.makeText(this, "Stop", Toast.LENGTH_LONG).show();

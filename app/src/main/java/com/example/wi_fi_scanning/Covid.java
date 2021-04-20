@@ -154,6 +154,7 @@ public class Covid extends AppCompatActivity {
         Sens.put("Magnetic", Magnet);
         wifi_measurement.setSensors(Sens);
         DBHelper.push().setValue(wifi_measurement);
+
     }
 
 }

@@ -231,25 +231,32 @@ public class MainActivity extends Covid {
                 y_magnet=event.values[1];
                 z_magnet=event.values[2];
             }
+            else if(event.sensor.getType()==Sensor.TYPE_ORIENTATION)
+            {
+                x_ori=event.values[0];
+                y_ori=event.values[1];
+                z_ori=event.values[2];
+            }
+            /*
+            DatabaseReference DBSensor = null;
+            DBSensor = FirebaseDatabase.getInstance().getReference().child("sensor");
+            HashMap acc = new HashMap();
+            acc.put("x_acc", x);
+            acc.put("y_acc", y);
+            acc.put("z_acc", z);
+            HashMap ori = new HashMap();
+            ori.put("x_ori", x_ori);
+            ori.put("y_ori", y_ori);
+            ori.put("z_ori", z_ori);
+            HashMap obj = new HashMap();
+            obj.put("acce", acc);
+            obj.put("orient", ori);
+            DBSensor.push().setValue(obj);*/
         }
 
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     };
-    private SensorEventListener getOrientation = new SensorEventListener() {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            x_ori = event.values[0];
-            y_ori = event.values[1];
-            z_ori = event.values[2];
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-        }
-    };
-
 
     public void onClick(View view){
         if(view.getId()== R.id.start)
@@ -263,7 +270,7 @@ public class MainActivity extends Covid {
                 registerReceiver(mReceiver, filter);
 
                 sensorManager.registerListener(getmSensorListener, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
-                sensorManager.registerListener(getOrientation, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);

@@ -20,21 +20,19 @@
         android:ems="10"
         android:hint="location" />
 
+    <Button
+        android:id="@+id/start"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:text="Start Scan" />
 
-
-            <Button
-                android:id="@+id/start"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:onClick="onClick"
-                android:text="Start Scan" />
-
-            <Button
-                android:id="@+id/stop"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:onClick="onClick"
-                android:text="Stop Scan" />
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:text="Stop Scan" />
 
     <TextView
         android:id="@+id/result"

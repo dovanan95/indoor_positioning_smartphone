@@ -115,17 +115,16 @@ public class Covid extends AppCompatActivity {
     public void DBHelper (String BSSID, String SSID, Float RSSI, String Loc_ID, long time_stmp,
                           Float x_acc, Float y_acc, Float z_acc, Float x_lnac, Float y_lnac, Float z_lnac,
                           Float x_ori, Float y_ori, Float z_ori, Float x_grav, Float y_grav, Float z_grav,
-                          Float x_magnet, Float y_magnet, Float z_magnet, String IMEI, int gsmRSS)
+                          Float x_magnet, Float y_magnet, Float z_magnet)
     {
         DatabaseReference DBHelper = null;
-        DBHelper = FirebaseDatabase.getInstance().getReference().child(IMEI);
+        DBHelper = FirebaseDatabase.getInstance().getReference().child("data");
         Wifi_Measurement wifi_measurement = new Wifi_Measurement();
         wifi_measurement.setBSSID(BSSID);
         wifi_measurement.setSSID(SSID);
         wifi_measurement.setRSSI(RSSI);
         wifi_measurement.setLocation_ID(Loc_ID);
         wifi_measurement.setTime_stamp(time_stmp);
-        wifi_measurement.setGSM_RSS(gsmRSS);
 
         HashMap Acce = new HashMap();
         Acce.put("x_acce", x_acc);

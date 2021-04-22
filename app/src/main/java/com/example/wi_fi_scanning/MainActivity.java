@@ -74,9 +74,9 @@ public class MainActivity extends Covid {
         Date currentTime = Calendar.getInstance().getTime();
         long datetime = currentTime.getTime();
         Timestamp timestamp = new Timestamp(datetime);
+        ScanResultText.setText("Is Recording...");
         ScanResultList = wifiManager.getScanResults();
         if (ScanResultList != null) {
-            ScanResultText.setText("Is Recording...");
             for (int i = 0; i < ScanResultList.size(); i++) {
                 ScanResult result = ScanResultList.get(i);
                 /*

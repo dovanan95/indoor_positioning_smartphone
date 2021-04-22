@@ -107,7 +107,8 @@ public class MainActivity extends Covid {
                 if(aSwitch.isChecked())
                 {
                     covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(), timestamp.getTime(),
-                            x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori, z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet, IMEI);
+                            x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
+                            z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet, IMEI, gsmRSSI);
                 }
                 ++mRSSICount;
                 //ScanResultText.setText("");
@@ -249,21 +250,6 @@ public class MainActivity extends Covid {
                 y_ori=event.values[1];
                 z_ori=event.values[2];
             }
-            /*
-            DatabaseReference DBSensor = null;
-            DBSensor = FirebaseDatabase.getInstance().getReference().child("sensor");
-            HashMap acc = new HashMap();
-            acc.put("x_acc", x);
-            acc.put("y_acc", y);
-            acc.put("z_acc", z);
-            HashMap ori = new HashMap();
-            ori.put("x_ori", x_ori);
-            ori.put("y_ori", y_ori);
-            ori.put("z_ori", z_ori);
-            HashMap obj = new HashMap();
-            obj.put("acce", acc);
-            obj.put("orient", ori);
-            DBSensor.push().setValue(obj);*/
         }
 
         @Override

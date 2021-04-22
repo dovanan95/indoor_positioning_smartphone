@@ -9,6 +9,7 @@ public class Wifi_Measurement {
     private String Location_ID;
     private long time_stamp;
     private HashMap Sensors;
+    private int GSM_RSS;
 
     public Wifi_Measurement() {
 
@@ -60,5 +61,13 @@ public class Wifi_Measurement {
 
     public void setSensors(HashMap sensors) {
         Sensors = sensors;
+    }
+
+    public int getGSM_RSS() {
+        return GSM_RSS;
+    }
+
+    public void setGSM_RSS(int GSM_RSS) {
+        this.GSM_RSS = GSM_RSS;
     }
 }

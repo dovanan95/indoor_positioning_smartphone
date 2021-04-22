@@ -13,9 +13,14 @@ import android.hardware.SensorManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +50,12 @@ public class MainActivity extends Covid {
     Wifi_Measurement wifi_measurement = new Wifi_Measurement();
     DatabaseReference DBHelper;
 
+    TelephonyManager Tel;
+    public int gsmRSSI;
+    String IMEI;
+
+    Switch aSwitch;
+
     public SensorEventListener mSensorListener;
     public SensorManager sensorManager;
     public List<Sensor> listSensor;
@@ -69,54 +80,51 @@ public class MainActivity extends Covid {
         }
     };
     // wifi scan 결과를 얻어서 UI의 TextView에 표시하는 기능 수행
-    public void getWifiInfo()
-    {
+    public void getWifiInfo() {
         //Do Van An's development
+
+        IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);
 
         Date currentTime = Calendar.getInstance().getTime();
         long datetime = currentTime.getTime();
         Timestamp timestamp = new Timestamp(datetime);
         ScanResultList = wifiManager.getScanResults();
-        if(ScanResultList != null)
-        {
+        if (ScanResultList != null) {
             //Toast.makeText(this, "Scan finished", Toast.LENGTH_LONG).show();
-            for (int i =0; i < ScanResultList.size(); i++)
-            {
+            for (int i = 0; i < ScanResultList.size(); i++) {
                 ScanResult result = ScanResultList.get(i);
                 ScanResultText.append("Start:"
-                        +"Date_Time: " + currentTime + " || " + "Time stamp: "+ timestamp.getTime() + "||"
+                        + "Date_Time: " + currentTime + " || " + "Time stamp: " + timestamp.getTime() + "||"
                         + "Location code: " + mEditTextLocation.getText().toString()
-                        + "||" + " BSSID: " + result.BSSID + "||" +" SSID: "
-                        + result.SSID + "||" + " RSSI: "+ result.level + "\n"
-                        + "Acceleration: " + x + "; " + y+ "; " + z + "\n"
-                        + "Orientation: " + x_ori + "; " +y_ori+"; " +z_ori+ "\n"
-                        + "linear acceleration: " + x_lin_acc+ " ; " + y_lin_acc +" ; "+ z_lin_acc +"\n"
-                        +" 8===============D -----------End\n");
+                        + "||" + " BSSID: " + result.BSSID + "||" + " SSID: "
+                        + result.SSID + "||" + " RSSI: " + result.level + "\n"
+                        + "Acceleration: " + x + "; " + y + "; " + z + "\n"
+                        + " ; GSM: " + gsmRSSI + " ;IMEI: " + IMEI + "\n"
+                        + " 8===============D -----------End\n");
                 Float RSSI = new Float(result.level);
                 Covid covid = new Covid();
-                covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(), timestamp.getTime(),
-                        x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,z_magnet);
-            }
-            ++mRSSICount;
-            //ScanResultText.setText("");
-            if(mRSSICount<12)
-            {
-                wifiManager.startScan();
-                mRSSICount = 0;
-            }
-            else
-            {
-                unregisterReceiver(mReceiver);
+                aSwitch = (Switch) findViewById(R.id.app_bar_switch);
+                if(aSwitch.isChecked())
+                {
+                    covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(), timestamp.getTime(),
+                            x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori, z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet, IMEI);
+                }
+                ++mRSSICount;
+                //ScanResultText.setText("");
+                if (mRSSICount < 12) {
+                    wifiManager.startScan();
+                    mRSSICount = 0;
+                } else {
+                    unregisterReceiver(mReceiver);
+                }
             }
         }
-        else if(ScanResultList == null)
-        {
-
+        else if (ScanResultList == null) {
             Toast.makeText(this, "Data unavailable!", Toast.LENGTH_LONG).show();
             ScanResultText.append("No value detected. Try again!");
         }
-
     }
+
 
     /*
     @Override
@@ -160,6 +168,8 @@ public class MainActivity extends Covid {
         mOrientation = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         sensorAll = sensorManager.getDefaultSensor(Sensor.TYPE_ALL);
 
+        Tel = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+
         ScanResultText = (TextView)findViewById((R.id.result));
         mEditTextLocation = (EditText)findViewById(R.id.activit_main_location_edittext);
         ScanResultText.setMovementMethod(new ScrollingMovementMethod());
@@ -184,6 +194,7 @@ public class MainActivity extends Covid {
             super.onPause();
             unregisterReceiver(mReceiver);
             sensorManager.unregisterListener(getmSensorListener);
+            Tel.listen(myPhoneListener, PhoneStateListener.LISTEN_NONE);
         }
         catch (Exception e)
         {
@@ -197,6 +208,7 @@ public class MainActivity extends Covid {
             super.onDestroy();
             unregisterReceiver(mReceiver);
             sensorManager.unregisterListener(getmSensorListener);
+            Tel.listen(myPhoneListener, PhoneStateListener.LISTEN_NONE);
         }
         catch (Exception e)
         {
@@ -258,6 +270,14 @@ public class MainActivity extends Covid {
         public void onAccuracyChanged(Sensor sensor, int accuracy) {}
     };
 
+    private PhoneStateListener myPhoneListener = new PhoneStateListener(){
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength signalStrength){
+            super.onSignalStrengthsChanged(signalStrength);
+            gsmRSSI = signalStrength.getGsmSignalStrength();
+        }
+    };
+
     public void onClick(View view){
         if(view.getId()== R.id.start)
         {
@@ -274,6 +294,9 @@ public class MainActivity extends Covid {
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
+
+                Tel.listen(myPhoneListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+                //IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);
             }
             else
             {
@@ -364,3 +387,4 @@ class ValueComparator implements Comparator<String>
                 }
             }
         }
+

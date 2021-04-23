@@ -76,7 +76,9 @@ public class MainActivity extends Covid {
         Timestamp timestamp = new Timestamp(datetime);
         ScanResultText.setText("Is Recording...");
         ScanResultList = wifiManager.getScanResults();
+
         if (ScanResultList != null) {
+            ++mRSSICount;
             for (int i = 0; i < ScanResultList.size(); i++) {
                 ScanResult result = ScanResultList.get(i);
                 /*
@@ -88,6 +90,7 @@ public class MainActivity extends Covid {
                         + "Acceleration: " + x + "; " + y + "; " + z + "\n"
                         + " 8===============D -----------End\n");*/
                 Float RSSI = new Float(result.level);
+
                 Covid covid = new Covid();
                 aSwitch = (Switch) findViewById(R.id.app_bar_switch);
                 if(aSwitch.isChecked()){
@@ -95,51 +98,20 @@ public class MainActivity extends Covid {
                             timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
                             z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet);
                 }
-                ++mRSSICount;
 
-                if (mRSSICount < 12) {
-                    wifiManager.startScan();
-                    mRSSICount = 0;
-                } else {
-                    unregisterReceiver(mReceiver);
-                }
             }
         } else if (ScanResultList == null) {
             Toast.makeText(this, "Data unavailable!", Toast.LENGTH_LONG).show();
             ScanResultText.append("No value detected. Try again!");
         }
-    }
 
-
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        int id = item.getItemId();
-        switch (id)
+        if (mRSSICount < 12)
         {
-            case R.id.mesure:
-                Toast.makeText(getApplicationContext(),"measure",Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.test:
-                Toast.makeText(getApplicationContext(),"Test",Toast.LENGTH_LONG).show();
-                Intent intent_2 = new Intent(this, Test_Covid_19.class);
-                startActivity(intent_2);
-                break;
+            wifiManager.startScan();
+            mRSSICount = 0;
         }
-        return super.onOptionsItemSelected(item);
     }
-    */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +119,6 @@ public class MainActivity extends Covid {
         setContentView(R.layout.activity_main);
 
         requestRuntimePermission();
-        //onRequestPermissionResult();
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAcceleration = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mOrientation = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
@@ -166,8 +137,7 @@ public class MainActivity extends Covid {
     protected void onResume() {
 
         super.onResume();
-        //IntentFilter filter = new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        //registerReceiver(mReceiver, filter);
+
     }
 
     @Override
@@ -259,7 +229,7 @@ public class MainActivity extends Covid {
             sensorManager.unregisterListener(getmSensorListener);
             //mRSSICount=12;
             ScanResultText.setText("Stop");
-            Toast.makeText(this, "Stop", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "Stop", Toast.LENGTH_LONG).show();
         }
     }
 

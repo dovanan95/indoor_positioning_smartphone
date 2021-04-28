@@ -9,6 +9,7 @@ public class Wifi_Measurement {
     private String Location_ID;
     private long time_stamp;
     private HashMap Sensors;
+    private String device_ID;
 
     public Wifi_Measurement() {
 
@@ -62,4 +63,11 @@ public class Wifi_Measurement {
         Sensors = sensors;
     }
 
+    public String getDevice_ID() {
+        return device_ID;
+    }
+
+    public void setDevice_ID(String device_ID) {
+        this.device_ID = device_ID;
+    }
 }

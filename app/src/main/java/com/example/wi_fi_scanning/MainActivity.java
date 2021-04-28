@@ -41,6 +41,7 @@ public class MainActivity extends Covid {
     int mRSSICount = 0;
 
     private Switch aSwitch;
+    String IMEI;
 
     public SensorEventListener mSensorListener;
     public SensorManager sensorManager;
@@ -69,7 +70,7 @@ public class MainActivity extends Covid {
     public void getWifiInfo() {
         //Do Van An's development
 
-        //IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);
+        IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);
 
         Date currentTime = Calendar.getInstance().getTime();
         long datetime = currentTime.getTime();
@@ -90,28 +91,24 @@ public class MainActivity extends Covid {
                         + "Acceleration: " + x + "; " + y + "; " + z + "\n"
                         + " 8===============D -----------End\n");*/
                 Float RSSI = new Float(result.level);
-
                 Covid covid = new Covid();
                 aSwitch = (Switch) findViewById(R.id.app_bar_switch);
                 if(aSwitch.isChecked()){
                     covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
                             timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
-                            z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet);
+                            z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet, IMEI);
                 }
-
             }
         } else if (ScanResultList == null) {
             Toast.makeText(this, "Data unavailable!", Toast.LENGTH_LONG).show();
             ScanResultText.append("No value detected. Try again!");
         }
-
         if (mRSSICount < 12)
         {
             wifiManager.startScan();
             mRSSICount = 0;
         }
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +132,7 @@ public class MainActivity extends Covid {
 
     @Override
     protected void onResume() {
-
         super.onResume();
-
     }
 
     @Override
@@ -149,7 +144,6 @@ public class MainActivity extends Covid {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -158,7 +152,6 @@ public class MainActivity extends Covid {
             super.onDestroy();
             unregisterReceiver(mReceiver);
             sensorManager.unregisterListener(getmSensorListener);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -190,12 +183,10 @@ public class MainActivity extends Covid {
                 z_ori = event.values[2];
             }
         }
-
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     };
-
 
     public void onClick(View view) {
         if (view.getId() == R.id.start) {

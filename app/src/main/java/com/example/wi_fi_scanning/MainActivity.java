@@ -1,8 +1,10 @@
 package com.example.wi_fi_scanning;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -53,6 +55,7 @@ public class MainActivity extends Covid {
     public float x_ori, y_ori, z_ori;
     public float x_grav, y_grav, z_grav;
     public float x_magnet, y_magnet, z_magnet;
+    public float x_gyro, y_gyro, z_gyro;
 
     // BroadcastReceiver 정의
     // 여기서는 이전 예제에서처럼 별도의 Java class 파일로 만들지 않았는데, 어떻게 하든 상관 없음
@@ -71,13 +74,11 @@ public class MainActivity extends Covid {
         //Do Van An's development
 
         IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);
-
+        ScanResultText.setText("Is Recording...");
         Date currentTime = Calendar.getInstance().getTime();
         long datetime = currentTime.getTime();
         Timestamp timestamp = new Timestamp(datetime);
-        ScanResultText.setText("Is Recording...");
         ScanResultList = wifiManager.getScanResults();
-
         if (ScanResultList != null) {
             ++mRSSICount;
             for (int i = 0; i < ScanResultList.size(); i++) {
@@ -94,9 +95,24 @@ public class MainActivity extends Covid {
                 Covid covid = new Covid();
                 aSwitch = (Switch) findViewById(R.id.app_bar_switch);
                 if(aSwitch.isChecked()){
-                    covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
-                            timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
-                            z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet, IMEI);
+                    if(MODE==3)
+                    {
+                        covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
+                                timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
+                                z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet,
+                                x_gyro, y_gyro, z_gyro, IMEI);
+                    }
+                    else if(MODE==2)
+                    {
+                        covid.DBHelper_Mode_Sensor(mEditTextLocation.getText().toString(),timestamp.getTime(),IMEI,
+                                x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,
+                                z_magnet,x_gyro,y_gyro,z_gyro);
+                    }
+                    else if(MODE==1)
+                    {
+                        covid.DBHelper_Mode_WIFI(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
+                                timestamp.getTime(), IMEI);
+                    }
                 }
             }
         } else if (ScanResultList == null) {
@@ -119,7 +135,7 @@ public class MainActivity extends Covid {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAcceleration = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mOrientation = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        sensorAll = sensorManager.getDefaultSensor(Sensor.TYPE_ALL);
+        //sensorAll = sensorManager.getDefaultSensor(Sensor.TYPE_ALL);
 
         ScanResultText = (TextView) findViewById((R.id.result));
         mEditTextLocation = (EditText) findViewById(R.id.activit_main_location_edittext);
@@ -182,11 +198,46 @@ public class MainActivity extends Covid {
                 y_ori = event.values[1];
                 z_ori = event.values[2];
             }
+            else if(event.sensor.getType()==Sensor.TYPE_GYROSCOPE)
+            {
+                x_gyro = event.values[0];
+                y_gyro = event.values[1];
+                z_gyro = event.values[2];
+            }
         }
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     };
+    String[] listItem;
+    public int MODE = 3;
+    public void onOptionClick(View view){
+        listItem = new  String[]{"Record only Wifi", "Record with Sensor data", "Record All"};
+        AlertDialog.Builder mbuilder = new AlertDialog.Builder(MainActivity.this);
+        mbuilder.setTitle("Choose Record Mode!");
+        mbuilder.setSingleChoiceItems(listItem, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(listItem[which]=="Record only Wifi")
+                {
+                    MODE=1;
+                    ScanResultText.setText("Mode is:"+MODE);
+                }
+                else if(listItem[which]=="Record with Sensor data")
+                {
+                    MODE=2;
+                    ScanResultText.setText("Mode is:"+MODE);
+                }
+                else if(listItem[which]=="Record All")
+                {
+                    MODE=3;
+                    ScanResultText.setText("Mode is:"+MODE);
+                }
+            }
+        });
+        AlertDialog mDialog = mbuilder.create();
+        mDialog.show();
+    }
 
     public void onClick(View view) {
         if (view.getId() == R.id.start) {
@@ -199,9 +250,14 @@ public class MainActivity extends Covid {
 
                 sensorManager.registerListener(getmSensorListener, mAcceleration, SensorManager.SENSOR_DELAY_NORMAL);
                 sensorManager.registerListener(getmSensorListener, mOrientation, SensorManager.SENSOR_DELAY_NORMAL);
-                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_NORMAL);
-                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION), SensorManager.SENSOR_DELAY_NORMAL);
-                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY), SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                        SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
+                        SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+                        SensorManager.SENSOR_DELAY_NORMAL);
+                sensorManager.registerListener(getmSensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+                        SensorManager.SENSOR_DELAY_NORMAL);
 
                 //Tel.listen(myPhoneListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
                 //IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);

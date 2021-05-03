@@ -115,7 +115,8 @@ public class Covid extends AppCompatActivity {
     public void DBHelper (String BSSID, String SSID, Float RSSI, String Loc_ID, long time_stmp,
                           Float x_acc, Float y_acc, Float z_acc, Float x_lnac, Float y_lnac, Float z_lnac,
                           Float x_ori, Float y_ori, Float z_ori, Float x_grav, Float y_grav, Float z_grav,
-                          Float x_magnet, Float y_magnet, Float z_magnet, String device_ID)
+                          Float x_magnet, Float y_magnet, Float z_magnet, Float x_gyro, Float y_gyro, Float z_gyro,
+                          String device_ID)
     {
         DatabaseReference DBHelper = null;
         DBHelper = FirebaseDatabase.getInstance().getReference().child("data");
@@ -147,16 +148,84 @@ public class Covid extends AppCompatActivity {
         Magnet.put("x_magnet", x_magnet);
         Magnet.put("y_magnet", y_magnet);
         Magnet.put("z_magnet", z_magnet);
+        HashMap Gyro = new HashMap();
+        Gyro.put("x_gyro", x_gyro);
+        Gyro.put("y_gyro", y_gyro);
+        Gyro.put("z_gyro", z_gyro);
         HashMap Sens = new HashMap();
         Sens.put("Acceleration", Acce);
         Sens.put("Linear_Acceleration", Linear_Acceleration);
         Sens.put("Orientation", Orient);
         Sens.put("Gravity", Grav);
         Sens.put("Magnetic", Magnet);
+        Sens.put("Gyroscope", Gyro);
 
         wifi_measurement.setSensors(Sens);
         DBHelper.push().setValue(wifi_measurement);
 
+    }
+
+    public void DBHelper_Mode_WIFI(String BSSID, String SSID, Float RSSI, String Loc_ID, long time_stmp, String device_ID)
+    {
+        Wifi_Strength_Only data_record =  new Wifi_Strength_Only();
+        DatabaseReference DBHelper = null;
+        DBHelper = FirebaseDatabase.getInstance().getReference().child("data_wifi_only");
+
+        data_record.setBSSID(BSSID);
+        data_record.setSSID(SSID);
+        data_record.setRSSI(RSSI);
+        data_record.setLocation_ID(Loc_ID);
+        data_record.setTime_stamp(time_stmp);
+        data_record.setDevice_ID(device_ID);
+
+        DBHelper.push().setValue(data_record);
+    }
+    public void DBHelper_Mode_Sensor(String Loc_ID, long time_stmp, String Device_ID,
+                                     Float x_acc, Float y_acc, Float z_acc, Float x_lin_acc, Float y_lin_acc, Float z_lin_acc,
+                                     Float x_ori, Float y_ori, Float z_ori, Float x_grav, Float y_grav, Float z_grav,
+                                     Float x_magnet, Float y_magnet, Float z_magnet, Float x_gyro, Float y_gyro, Float z_gyro)
+    {
+        Sensor_Only data_sensor = new Sensor_Only();
+        DatabaseReference DBHelper = null;
+        DBHelper = FirebaseDatabase.getInstance().getReference().child("data_sensor_only");
+
+        data_sensor.setDevice_ID(Device_ID);
+        data_sensor.setLocation_ID(Loc_ID);
+        data_sensor.setTime_stamp(time_stmp);
+
+        HashMap Acce = new HashMap();
+        Acce.put("x_acce", x_acc);
+        Acce.put("y_acce", y_acc);
+        Acce.put("z_acce", z_acc);
+        HashMap Linear_Acceleration = new HashMap();
+        Linear_Acceleration.put("x_lnac", x_lin_acc);
+        Linear_Acceleration.put("y_lnac", y_lin_acc);
+        Linear_Acceleration.put("z_lnac", z_lin_acc);
+        HashMap Orient = new HashMap();
+        Orient.put("x_ori", x_ori);
+        Orient.put("y_ori", y_ori);
+        Orient.put("z_ori", z_ori);
+        HashMap Grav = new HashMap();
+        Grav.put("x_grav", x_grav);
+        Grav.put("y_grav", y_grav);
+        Grav.put("z_grav", z_grav);
+        HashMap Magnet = new HashMap();
+        Magnet.put("x_magnet", x_magnet);
+        Magnet.put("y_magnet", y_magnet);
+        Magnet.put("z_magnet", z_magnet);
+        HashMap Gyro = new HashMap();
+        Gyro.put("x_gyro", x_gyro);
+        Gyro.put("y_gyro", y_gyro);
+        Gyro.put("z_gyro", z_gyro);
+
+        data_sensor.setAcceleration(Acce);
+        data_sensor.setLinear_Acceleration(Linear_Acceleration);
+        data_sensor.setOrientation(Orient);
+        data_sensor.setGravity(Grav);
+        data_sensor.setMagnetic(Magnet);
+        data_sensor.setGyroscope(Gyro);
+
+        DBHelper.push().setValue(data_sensor);
     }
 
 }

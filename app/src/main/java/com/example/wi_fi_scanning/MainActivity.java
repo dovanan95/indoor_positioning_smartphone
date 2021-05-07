@@ -82,10 +82,17 @@ public class MainActivity extends Covid {
         ScanResultList = wifiManager.getScanResults();
         if (ScanResultList != null) {
             ++mRSSICount;
+            Covid covid = new Covid();
+            if(MODE==2)
+            {
+                covid.DBHelper_Mode_Sensor(mEditTextLocation.getText().toString(),timestamp.getTime(),IMEI,
+                        x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,
+                        z_magnet,x_gyro,y_gyro,z_gyro);
+            }
             for (int i = 0; i < ScanResultList.size(); i++) {
                 ScanResult result = ScanResultList.get(i);
                 Float RSSI = new Float(result.level);
-                Covid covid = new Covid();
+
                 aSwitch = (Switch) findViewById(R.id.app_bar_switch);
                 if(MODE==3)
                 {
@@ -93,12 +100,6 @@ public class MainActivity extends Covid {
                             timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
                             z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet,
                             x_gyro, y_gyro, z_gyro, IMEI);
-                }
-                else if(MODE==2)
-                {
-                    covid.DBHelper_Mode_Sensor(mEditTextLocation.getText().toString(),timestamp.getTime(),IMEI,
-                            x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,
-                            z_magnet,x_gyro,y_gyro,z_gyro);
                 }
                 else if(MODE==1)
                 {

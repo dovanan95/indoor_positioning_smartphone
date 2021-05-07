@@ -71,48 +71,39 @@ public class MainActivity extends Covid {
 
     // wifi scan 결과를 얻어서 UI의 TextView에 표시하는 기능 수행
     public void getWifiInfo() {
+
         //Do Van An's development
 
         IMEI = com.example.wi_fi_scanning.IMEI.get_device_id(this);
-        ScanResultText.setText("Is Recording...");
         Date currentTime = Calendar.getInstance().getTime();
         long datetime = currentTime.getTime();
+        ScanResultText.setText("Is Recording...");
         Timestamp timestamp = new Timestamp(datetime);
         ScanResultList = wifiManager.getScanResults();
         if (ScanResultList != null) {
             ++mRSSICount;
             for (int i = 0; i < ScanResultList.size(); i++) {
                 ScanResult result = ScanResultList.get(i);
-                /*
-                ScanResultText.append("Start:"
-                        + "Date_Time: " + currentTime + " || " + "Time stamp: " + timestamp.getTime() + "||"
-                        + "Location code: " + mEditTextLocation.getText().toString()
-                        + "||" + " BSSID: " + result.BSSID + "||" + " SSID: "
-                        + result.SSID + "||" + " RSSI: " + result.level + "\n"
-                        + "Acceleration: " + x + "; " + y + "; " + z + "\n"
-                        + " 8===============D -----------End\n");*/
                 Float RSSI = new Float(result.level);
                 Covid covid = new Covid();
                 aSwitch = (Switch) findViewById(R.id.app_bar_switch);
-                if(aSwitch.isChecked()){
-                    if(MODE==3)
-                    {
-                        covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
-                                timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
-                                z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet,
-                                x_gyro, y_gyro, z_gyro, IMEI);
-                    }
-                    else if(MODE==2)
-                    {
-                        covid.DBHelper_Mode_Sensor(mEditTextLocation.getText().toString(),timestamp.getTime(),IMEI,
-                                x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,
-                                z_magnet,x_gyro,y_gyro,z_gyro);
-                    }
-                    else if(MODE==1)
-                    {
-                        covid.DBHelper_Mode_WIFI(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
-                                timestamp.getTime(), IMEI);
-                    }
+                if(MODE==3)
+                {
+                    covid.DBHelper(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
+                            timestamp.getTime(), x, y, z, x_lin_acc, y_lin_acc, z_lin_acc, x_ori, y_ori,
+                            z_ori, x_grav, y_grav, z_grav, x_magnet, y_magnet, z_magnet,
+                            x_gyro, y_gyro, z_gyro, IMEI);
+                }
+                else if(MODE==2)
+                {
+                    covid.DBHelper_Mode_Sensor(mEditTextLocation.getText().toString(),timestamp.getTime(),IMEI,
+                            x,y,z,x_lin_acc,y_lin_acc,z_lin_acc,x_ori,y_ori,z_ori,x_grav,y_grav,z_grav,x_magnet,y_magnet,
+                            z_magnet,x_gyro,y_gyro,z_gyro);
+                }
+                else if(MODE==1)
+                {
+                    covid.DBHelper_Mode_WIFI(result.BSSID, result.SSID, RSSI, mEditTextLocation.getText().toString(),
+                            timestamp.getTime(), IMEI);
                 }
             }
         } else if (ScanResultList == null) {
@@ -121,9 +112,16 @@ public class MainActivity extends Covid {
         }
         if (mRSSICount < 12)
         {
-            wifiManager.startScan();
-            mRSSICount = 0;
+            if(aSwitch.isChecked()) {
+                wifiManager.startScan();
+                mRSSICount = 0;
+            }
+            else
+            {
+                ScanResultText.setText("Finished");
+            }
         }
+        //ScanResultText.setText("Finished");
     }
 
     @Override
@@ -210,9 +208,9 @@ public class MainActivity extends Covid {
         }
     };
     String[] listItem;
-    public int MODE = 3;
+    public int MODE = 1;
     public void onOptionClick(View view){
-        listItem = new  String[]{"Record only Wifi", "Record with Sensor data", "Record All"};
+        listItem = new  String[]{"Record only Wifi", "Record only Sensor data", "Record All"};
         AlertDialog.Builder mbuilder = new AlertDialog.Builder(MainActivity.this);
         mbuilder.setTitle("Choose Record Mode!");
         mbuilder.setSingleChoiceItems(listItem, -1, new DialogInterface.OnClickListener() {
@@ -223,7 +221,7 @@ public class MainActivity extends Covid {
                     MODE=1;
                     ScanResultText.setText("Mode is:"+MODE);
                 }
-                else if(listItem[which]=="Record with Sensor data")
+                else if(listItem[which]=="Record only Sensor data")
                 {
                     MODE=2;
                     ScanResultText.setText("Mode is:"+MODE);
